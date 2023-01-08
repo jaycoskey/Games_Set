@@ -26,8 +26,10 @@ class SetCardCollection {
     }
 
     public void printNumeric() {
-        for (int row = 0; row < 3; ++row) {
-            for (int cardNum = row; cardNum < size(); cardNum += 3) {
+        int maxColumns = 6;
+        int rowCount = 3 + 3 * (int) ((size() - 1) / (3 * maxColumns));
+        for (int row = 0; row < rowCount; ++row) {
+            for (int cardNum = row; cardNum < size(); cardNum += rowCount) {
                 System.out.print("#");
                 System.out.print(cardNum);
                 if (cardNum < 10) { System.out.print(" "); }
