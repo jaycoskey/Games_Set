@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -49,28 +48,6 @@ class SetDeck extends SetCardCollection {
             String s = String.format("There %s %d cards left in the deck.\n", verb, cards.size());
             System.out.print(s);
         }
-    }
-
-    public void printNumeric() {
-        for (int row = 0; row < 3; ++row) {
-            for (int cardNum = row; cardNum < size(); cardNum += 3) {
-                System.out.print("#");
-                System.out.print(cardNum);
-                if (cardNum < 10) { System.out.print(" "); }
-                System.out.print(": ");
-                cards.get(cardNum).printNumeric();
-                System.out.print(" ");
-            }
-            System.out.print("\n");
-        }
-    }
-
-    public void removeThree(int[] indxs) {
-        Arrays.sort(indxs);
-        cards.remove(indxs[2]);
-        cards.remove(indxs[1]);
-        cards.remove(indxs[0]);
-        cards.trimToSize();
     }
 
     // Fisher-Yates shuffle
