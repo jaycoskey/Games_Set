@@ -25,20 +25,23 @@ class SetCardCollection {
         return cards.isEmpty();
     }
 
-    public void printNumeric() {
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+
         int maxColumns = 6;
         int rowCount = 3 + 3 * (int) ((size() - 1) / (3 * maxColumns));
         for (int row = 0; row < rowCount; ++row) {
             for (int cardNum = row; cardNum < size(); cardNum += rowCount) {
-                System.out.print("#");
-                System.out.print(cardNum);
-                if (cardNum < 10) { System.out.print(" "); }
-                System.out.print(": ");
-                cards.get(cardNum).printNumeric();
-                System.out.print(" ");
+                str.append("#");
+                str.append(cardNum);
+                if (cardNum < 10) { str.append(" "); }
+                str.append(": ");
+                str.append(cards.get(cardNum).toString());
+                str.append(" ");
             }
-            System.out.print("\n");
+            str.append("\n");
         }
+        return str.toString();
     }
 
     public void removeThree(int[] indxs) {

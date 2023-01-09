@@ -5,20 +5,25 @@
 // 4. Shading: Each card is solid, open, or striped.
 class SetCard {
     public SetCard(int x) { id = x; }
+
     protected int id;
 
-    public void printNumeric() {
-        for (int d = 3; d >= 0; --d) {
-            System.out.print(getTernaryDigit(d));
-        }
-        System.out.print("(");
-        System.out.print(id);
-        System.out.print(") ");
-        if (id < 10) { System.out.print(" "); }
-    }
     protected int getTernaryDigit(int d) {
         int n = id;
         n /= Math.pow(3, d);	 // Shift right to drop unneeded digits
         return n - 3 * (n / 3);  // Get last ternary digit
+    }
+
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+
+        for (int d = 3; d >= 0; --d) {
+            str.append(getTernaryDigit(d));
+        }
+        str.append("(");
+        str.append(id);
+        str.append(") ");
+        if (id < 10) { str.append(" "); }
+        return str.toString();
     }
 }

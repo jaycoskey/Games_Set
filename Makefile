@@ -1,4 +1,8 @@
-SRCS= SetGame.java SetDeck.java SetCard.java EmptyException.java
+SRCS= EmptyException.java \
+    SetCard.java \
+    SetDeck.java \
+    SetGame.java \
+    SetGui.java
 
 CLASSES = $(SRCS:%.java=%.class)
 
