@@ -2,23 +2,23 @@ import java.util.Arrays;
 import java.util.Random;
 
 
-class SetDeck extends SetCardCollection {
+class Deck extends CardCollection {
     public final static int CARD_COUNT = 81;
     public final static int BASE_OUTLAY_COUNT = 12;
     public final static int INCREMENTAL_OUTLAY_COUNT = 3;
 
-    public SetCard dealCard() throws EmptyException {
+    public Card dealCard() throws EmptyException {
         if (cards.isEmpty()) {
             throw new EmptyException();
         }
         int topCardIndex = cards.size() - 1;
-        SetCard card = cards.get(topCardIndex);
+        Card card = cards.get(topCardIndex);
         cards.remove(topCardIndex);
         cards.trimToSize();
         return card;
     }
 
-    public boolean dealThreeIntoOther(SetCardCollection other) throws EmptyException {
+    public boolean dealThreeIntoOther(CardCollection other) throws EmptyException {
         if (cards.isEmpty()) {
             return false;
         }
@@ -28,13 +28,13 @@ class SetDeck extends SetCardCollection {
         return true;
     }
 
-    public SetCard getCard(int i) {
+    public Card getCard(int i) {
         return cards.get(i);
     }
 
     public void populateAndShuffle() {
         for (int cardNum = 0; cardNum < CARD_COUNT; ++cardNum) {
-            SetCard sc = new SetCard(cardNum);
+            Card sc = new Card(cardNum);
             cards.add(sc);
         }
         shuffle();
@@ -72,7 +72,7 @@ class SetDeck extends SetCardCollection {
 
     public void swap(int a, int b) {
         assert(a != b);
-        SetCard tmp = cards.get(a);
+        Card tmp = cards.get(a);
         cards.set(a, cards.get(b));
         cards.set(b, tmp);
     }

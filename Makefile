@@ -1,8 +1,8 @@
 SRCS= EmptyException.java \
-    SetCard.java \
-    SetDeck.java \
-    SetGame.java \
-    SetGui.java
+    Card.java \
+    Deck.java \
+    Game.java \
+    Gui.java
 
 CLASSES = $(SRCS:%.java=%.class)
 
@@ -12,11 +12,10 @@ clean:
 	rm *.class
 
 run: default
-	java SetGame
+	java Game
 
 wc:
 	wc $(SRCS)
 
 %.class: %.java
 	javac $<
-

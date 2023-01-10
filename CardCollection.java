@@ -4,12 +4,12 @@ import java.util.Random;
 // import java.util.sort;
 
 
-class SetCardCollection {
-    public SetCardCollection() {
-        cards = new ArrayList<SetCard>();
+class CardCollection {
+    public CardCollection() {
+        cards = new ArrayList<Card>();
     }
 
-    public void add(SetCard sc) {
+    public void add(Card sc) {
         cards.add(sc);
     }
 
@@ -17,7 +17,7 @@ class SetCardCollection {
         cards.clear();
     }
 
-    public SetCard getCard(int i) {
+    public Card getCard(int i) {
         return cards.get(i);
     }
 
@@ -57,5 +57,5 @@ class SetCardCollection {
         return cards.size();
     }
 
-    protected ArrayList<SetCard> cards;
+    protected ArrayList<Card> cards;
 }

@@ -3,8 +3,8 @@
 // 2. Symbol:  Each card contains ovals, squiggles, or diamonds.
 // 3. Number:  Each card has one, two, or three symbols.
 // 4. Shading: Each card is solid, open, or striped.
-class SetCard {
-    public SetCard(int x) { id = x; }
+class Card {
+    public Card(int x) { id = x; }
 
     protected int id;
 

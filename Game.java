@@ -10,40 +10,40 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-class SetGame {
+class Game {
     // Show user a Set if one is present that they cannot find.
     public static boolean isHelpEnabled_onBlankShowSet = true;
 
     // TODO: End game if deck is empty and no more Sets are present.
     public static boolean isMercyEnabled = false;
 
-    public SetGui gui;
+    public Gui gui;
 
-    SetGame() {
-        this.gui = new SetGui(this);
+    Game() {
+        this.gui = new Gui(this);
     }
 
     // TODO: Refactor into smaller pieces.
     public static void main(String [] args) throws EmptyException, IOException {
-        SetGame game = new SetGame();
+        Game game = new Game();
         int numSetsFound = 0;
 
         // Play the game
         for (;;) {
-            SetDeck deck = new SetDeck();
-            SetCardCollection tableCards = new SetDeck();
+            Deck deck = new Deck();
+            CardCollection tableCards = new Deck();
 
             assert(deck.isEmpty());
             deck.populateAndShuffle();
-            assert(deck.size() == SetDeck.CARD_COUNT);
+            assert(deck.size() == Deck.CARD_COUNT);
             assert(tableCards.isEmpty());
 
             // Deal initial cards to the table
-            for (int k = 0; k < SetDeck.BASE_OUTLAY_COUNT; ++k) {
+            for (int k = 0; k < Deck.BASE_OUTLAY_COUNT; ++k) {
                 tableCards.add(deck.dealCard());
             }
-            assert(deck.size() == SetDeck.CARD_COUNT - SetDeck.BASE_OUTLAY_COUNT);
-            assert(tableCards.size() == SetDeck.BASE_OUTLAY_COUNT);
+            assert(deck.size() == Deck.CARD_COUNT - Deck.BASE_OUTLAY_COUNT);
+            assert(tableCards.size() == Deck.BASE_OUTLAY_COUNT);
 
             for (;;) {  // User looking for set
                 game.printGameStats(numSetsFound, tableCards.size(), deck.size());
@@ -53,7 +53,7 @@ class SetGame {
                 if (optUserResponse.isPresent()) {
                     // User claims to have found a set
                     int[] userSetIndxs = optUserResponse.get();
-                    SetCard[] cards = { tableCards.getCard(userSetIndxs[0]),
+                    Card[] cards = { tableCards.getCard(userSetIndxs[0]),
                                         tableCards.getCard(userSetIndxs[1]),
                                         tableCards.getCard(userSetIndxs[2])
                                         };
@@ -66,7 +66,7 @@ class SetGame {
                             game.gui.consolePrintln("\nYou cleared the board. Congratulations!!");
                             break;  // Game over --- Board cleared
                         }
-                        if (tableCards.size() < SetDeck.BASE_OUTLAY_COUNT) {
+                        if (tableCards.size() < Deck.BASE_OUTLAY_COUNT) {
                             if (!deck.isEmpty()) {
                                 deck.dealThreeIntoOther(tableCards);
                             }
@@ -78,7 +78,7 @@ class SetGame {
                     }
                 } else {
                     assert(optUserResponse.isEmpty());
-                    if (SetGame.isHelpEnabled_onBlankShowSet) {
+                    if (Game.isHelpEnabled_onBlankShowSet) {
                         int[] setIndxs = new int[3];
                         boolean isSetFound = findSet(tableCards, setIndxs);
                         if (isSetFound) {
@@ -118,13 +118,13 @@ class SetGame {
     * @return Returns true if Set was found; otherwise, false.
     * TODO: Change to findSets, with a maxCount parameter.
     */
-    public static boolean findSet(SetCardCollection cards, int[] indxs) {
+    public static boolean findSet(CardCollection cards, int[] indxs) {
         int size = cards.size();
 
         for (int i = 0; i < size - 2; ++i) {
             for (int j = i + 1; j < size - 1; ++j) {
                 for (int k = j + 1; k < size; ++k) {
-                    SetCard[] trio = { cards.getCard(i), cards.getCard(j), cards.getCard(k) };
+                    Card[] trio = { cards.getCard(i), cards.getCard(j), cards.getCard(k) };
                     if (isSet(trio)) {
                         indxs[0] = i;
                         indxs[1] = j;
@@ -137,7 +137,7 @@ class SetGame {
         return false;
     }
 
-    public static boolean isSet(SetCard[] cards) {
+    public static boolean isSet(Card[] cards) {
         for (int d = 0; d < 4; ++d) {
             int x = cards[0].getTernaryDigit(d);
             int y = cards[1].getTernaryDigit(d);
@@ -163,7 +163,7 @@ class SetGame {
         this.gui.consolePrintln(outStr);
     }
 
-    public void printSet(SetCardCollection cards, int[] indxs) {
+    public void printSet(CardCollection cards, int[] indxs) {
         this.gui.consolePrintln(
             "Cards #" + String.valueOf(indxs[0])
             +   ", #" + String.valueOf(indxs[1])
@@ -238,7 +238,7 @@ class SetGame {
         this.isMercyEnabled = isEnabled;
     }
 
-    public void showSet(SetCardCollection tableCards, int[] indxs) {
+    public void showSet(CardCollection tableCards, int[] indxs) {
         this.gui.consolePrint("\nSet: ");
         printSet(tableCards, indxs);
     }

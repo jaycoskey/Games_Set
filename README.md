@@ -9,4 +9,4 @@
   * Game option: Display current number of Sets on board.
   * Game option: Support a "mercy option": End the game if the deck is empty, and no more Sets are present.
   * Implementation: Change findSet to findSets, which can find all Sets on board.
-  * Implementation: Refactor SetGame.main() into smaller pieces.
+  * Implementation: Refactor Game.main() into smaller pieces.
