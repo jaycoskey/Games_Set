@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 class SetGame {
     // Show user a Set if one is present that they cannot find.
-    public static boolean isHelpEnabled = true;
+    public static boolean isHelpEnabled_onBlankShowSet = true;
 
     // TODO: End game if deck is empty and no more Sets are present.
     public static boolean isMercyEnabled = false;
@@ -20,7 +20,7 @@ class SetGame {
     public SetGui gui;
 
     SetGame() {
-        this.gui = new SetGui();
+        this.gui = new SetGui(this);
     }
 
     // TODO: Refactor into smaller pieces.
@@ -47,7 +47,7 @@ class SetGame {
 
             for (;;) {  // User looking for set
                 game.printGameStats(numSetsFound, tableCards.size(), deck.size());
-                game.gui.print(tableCards.toString());
+                game.gui.consolePrint(tableCards.toString());
 
                 Optional<int[]> optUserResponse = game.queryUserSet(tableCards.size());
                 if (optUserResponse.isPresent()) {
@@ -59,11 +59,11 @@ class SetGame {
                                         };
                     if (isSet(cards)) {
                         // User found a set
-                        game.gui.println("\n*** You found a set!");
+                        game.gui.consolePrintln("\n*** You found a set!");
                         numSetsFound++;
                         tableCards.removeThree(userSetIndxs);
                         if (tableCards.isEmpty()) {
-                            game.gui.println("\nYou cleared the board. Congratulations!!");
+                            game.gui.consolePrintln("\nYou cleared the board. Congratulations!!");
                             break;  // Game over --- Board cleared
                         }
                         if (tableCards.size() < SetDeck.BASE_OUTLAY_COUNT) {
@@ -73,12 +73,12 @@ class SetGame {
                             continue;
                         }
                     } else {
-                        game.gui.println("\n*** No, that's not a set.");
+                        game.gui.consolePrintln("\n*** No, that's not a set.");
                         continue;
                     }
                 } else {
                     assert(optUserResponse.isEmpty());
-                    if (SetGame.isHelpEnabled) {
+                    if (SetGame.isHelpEnabled_onBlankShowSet) {
                         int[] setIndxs = new int[3];
                         boolean isSetFound = findSet(tableCards, setIndxs);
                         if (isSetFound) {
@@ -87,7 +87,7 @@ class SetGame {
                         }
                     }
                     if (deck.isEmpty()) {
-                        game.gui.println("\nGame is over. Thanks for playing!");
+                        game.gui.consolePrintln("\nGame is over. Thanks for playing!");
                         break;  // Game over. User could not find Set, and deck is empty
                     } else {
                         // Lay down 3 more cards
@@ -98,7 +98,7 @@ class SetGame {
             }  // Done with this deck
 
             if (! game.queryUserReplay()) {
-                game.gui.println("Bye!");
+                game.gui.consolePrintln("Bye!");
                 break;  // End game loop
             }
         }
@@ -160,11 +160,11 @@ class SetGame {
 
         String outStr = String.format("%s found. %s on the table. %s in the deck.",
                                           setCountStr, tableCountStr, deckCountStr);
-        this.gui.println(outStr);
+        this.gui.consolePrintln(outStr);
     }
 
     public void printSet(SetCardCollection cards, int[] indxs) {
-        this.gui.println(
+        this.gui.consolePrintln(
             "Cards #" + String.valueOf(indxs[0])
             +   ", #" + String.valueOf(indxs[1])
             +   ", #" + String.valueOf(indxs[2])
@@ -176,9 +176,9 @@ class SetGame {
         BufferedReader in;
 
         in = new BufferedReader(new InputStreamReader(System.in));
-        this.gui.print("\nPlay again (y/n)? ");
+        this.gui.consolePrint("\nPlay again (y/n)? ");
         reply = in.readLine();
-        this.gui.println("");
+        this.gui.consolePrintln("");
         reply = reply.toLowerCase().trim();
         if (reply.startsWith("n") || reply.startsWith("q")) {
             return false;
@@ -192,14 +192,14 @@ class SetGame {
         Pattern regex = Pattern.compile("^\\s*\\d+\\s+\\d+\\s+\\d+\\s*$");
 
         for (;;) {
-            this.gui.print("\nEnter three card #numbers (or <RETURN> for no Set found): ");
+            this.gui.consolePrint("\nEnter three card #numbers (or <RETURN> for no Set found): ");
             String userInput = in.readLine().trim();
             if (userInput.isEmpty()) {
                 return Optional.empty();  // User did not find set
             }
             Matcher matcher = regex.matcher(userInput);
             if (!matcher.find()) {
-                this.gui.println("Error: Did not recognize input format.");
+                this.gui.consolePrintln("Error: Did not recognize input format.");
                 continue;
             }
             int[] cardIndxs = Arrays.stream(userInput.split(" "))
@@ -209,7 +209,7 @@ class SetGame {
             boolean areIndxsValid = true;
             for (int cardIndx : cardIndxs) {
                 if (cardIndx < 0 || cardIndx >= tableCardCount) {
-                    this.gui.print(String.format("Error: Cards #%d is out of range (0 to %d)",
+                    this.gui.consolePrint(String.format("Error: Cards #%d is out of range (0 to %d)",
                         cardIndx, tableCardCount - 1));
                     areIndxsValid = false;
                 }
@@ -222,8 +222,24 @@ class SetGame {
         // NOT_REACHED
     }
 
+    public boolean getHelpEnabled_onBlankShowSet() {
+        return this.isHelpEnabled_onBlankShowSet;
+    }
+
+    public boolean getMercyEnabled() {
+        return this.isMercyEnabled;
+    }
+
+    public void setHelpEnabled_onBlankShowSet(boolean isEnabled) {
+        this.isHelpEnabled_onBlankShowSet = isEnabled;
+    }
+
+    public void setMercyEnabled(boolean isEnabled) {
+        this.isMercyEnabled = isEnabled;
+    }
+
     public void showSet(SetCardCollection tableCards, int[] indxs) {
-        this.gui.print("\nSet: ");
+        this.gui.consolePrint("\nSet: ");
         printSet(tableCards, indxs);
     }
 }
