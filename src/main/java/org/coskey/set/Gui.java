@@ -1,3 +1,5 @@
+package org.coskey.set;
+
 import java.util.stream.IntStream;
 
 import java.awt.Color;

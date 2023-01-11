@@ -1,3 +1,5 @@
+package org.coskey.set;
+
 // In the card game Set, each card has 4 properties:
 // 1. Color:   Each card is red, green, or purple.
 // 2. Symbol:  Each card contains ovals, squiggles, or diamonds.

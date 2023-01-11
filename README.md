@@ -1,5 +1,9 @@
 # <center>SET --- The Card Game</center>
 
+## Build:
+  * % mvn compile
+  * % java org.coskey.set.Game
+
 ## Current issue:
   * This implementation is only partially GUI-ified. Text appears in a GUI console-like window, but the user must still enter text in the console that launched the program.
 
