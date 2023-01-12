@@ -1,7 +1,5 @@
 package org.coskey.set;
 
-import java.util.stream.IntStream;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -9,6 +7,9 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.io.IOException;
+
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -39,12 +40,14 @@ public class Gui extends JFrame {
     private JMenuBar menuBar;
 
     private Game game;
+    // TODO:Next: Add display of card table: private CardTable cardTable;
 
     // private JLabel consolePrompt;  // TODO
     // private JTextField consoleInput;  // TODO
 
     Gui(Game game) {
         this.game = game;
+        // TODO:Next: this.cardTable = new CardTable();
         this.consoleArea = getInitConsoleArea();
         this.consolePanel = getInitConsolePanel(this.consoleArea);
         this.menuBar = this.getInitMenuBar();
@@ -55,10 +58,22 @@ public class Gui extends JFrame {
         JFrame mainWindow = new JFrame("Set Game");
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainWindow.setSize(Gui.SIZE_X, Gui.SIZE_Y);
-        mainWindow.setContentPane(this.consolePanel);
         mainWindow.setJMenuBar(this.menuBar);
+        mainWindow.setLayout(new BoxLayout(mainWindow.getContentPane(), BoxLayout.Y_AXIS));
+
+        // mainWindow.add(this.cardTable);
+        mainWindow.add(this.consolePanel);
         consolePrint("");
         mainWindow.setVisible(true);
+    }
+
+    public void consolePrint(String s) {
+        this.consoleArea.append(s);
+        this.consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+    }
+
+    public void consolePrintln(String s) {
+        this.consolePrint(s + "\n");
     }
 
     private JTextArea getInitConsoleArea() {
@@ -115,12 +130,8 @@ public class Gui extends JFrame {
         return menuBar;
     }
 
-    public void consolePrint(String s) {
-        this.consoleArea.append(s);
-        this.consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
-    }
-
-    public void consolePrintln(String s) {
-        this.consolePrint(s + "\n");
-    }
+    // TODO:Next
+    // public void updateCardTable(CardCollection tableCards) throws EmptyException, IOException {
+    //     this.cardTable.update(tableCards);
+    // }
 }
