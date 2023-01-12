@@ -19,85 +19,22 @@ class Game {
     // TODO: End game if deck is empty and no more Sets are present.
     public static boolean isMercyEnabled = false;
 
+    public Deck deck;
+    public CardCollection tableCards;
     public Gui gui;
+    private int numSetsFound;
 
     Game() {
-        this.gui = new Gui(this);
+        gui = new Gui(this);
     }
 
     // TODO: Refactor into smaller pieces.
     public static void main(String [] args) throws EmptyException, IOException {
         Game game = new Game();
-        int numSetsFound = 0;
 
-        // Play the game
         for (;;) {
-            Deck deck = new Deck();
-            CardCollection tableCards = new Deck();
-
-            assert(deck.isEmpty());
-            deck.populateAndShuffle();
-            assert(deck.size() == Deck.CARD_COUNT);
-            assert(tableCards.isEmpty());
-
-            // Deal initial cards to the table
-            for (int k = 0; k < Deck.BASE_OUTLAY_COUNT; ++k) {
-                tableCards.add(deck.dealCard());
-            }
-            assert(deck.size() == Deck.CARD_COUNT - Deck.BASE_OUTLAY_COUNT);
-            assert(tableCards.size() == Deck.BASE_OUTLAY_COUNT);
-
-            for (;;) {  // User looking for set
-                game.printGameStats(numSetsFound, tableCards.size(), deck.size());
-                game.gui.consolePrint(tableCards.toString());
-
-                Optional<int[]> optUserResponse = game.queryUserSet(tableCards.size());
-                if (optUserResponse.isPresent()) {
-                    // User claims to have found a set
-                    int[] userSetIndxs = optUserResponse.get();
-                    Card[] cards = { tableCards.getCard(userSetIndxs[0]),
-                                        tableCards.getCard(userSetIndxs[1]),
-                                        tableCards.getCard(userSetIndxs[2])
-                                        };
-                    if (isSet(cards)) {
-                        // User found a set
-                        game.gui.consolePrintln("\n*** You found a set!");
-                        numSetsFound++;
-                        tableCards.removeThree(userSetIndxs);
-                        if (tableCards.isEmpty()) {
-                            game.gui.consolePrintln("\nYou cleared the board. Congratulations!!");
-                            break;  // Game over --- Board cleared
-                        }
-                        if (tableCards.size() < Deck.BASE_OUTLAY_COUNT) {
-                            if (!deck.isEmpty()) {
-                                deck.dealThreeIntoOther(tableCards);
-                            }
-                            continue;
-                        }
-                    } else {
-                        game.gui.consolePrintln("\n*** No, that's not a set.");
-                        continue;
-                    }
-                } else {
-                    assert(optUserResponse.isEmpty());
-                    if (Game.isHelpEnabled_onBlankShowSet) {
-                        int[] setIndxs = new int[3];
-                        boolean isSetFound = findSet(tableCards, setIndxs);
-                        if (isSetFound) {
-                            game.showSet(tableCards, setIndxs);
-                            continue;
-                        }
-                    }
-                    if (deck.isEmpty()) {
-                        game.gui.consolePrintln("\nGame is over. Thanks for playing!");
-                        break;  // Game over. User could not find Set, and deck is empty
-                    } else {
-                        // Lay down 3 more cards
-                        deck.dealThreeIntoOther(tableCards);
-                        continue;
-                    }
-                }
-            }  // Done with this deck
+            game.setup();
+            game.playRounds();
 
             if (! game.queryUserReplay()) {
                 game.gui.consolePrintln("Bye!");
@@ -152,6 +89,71 @@ class Game {
         return true;
     }
 
+    // ========================================
+
+    public boolean getHelpEnabled_onBlankShowSet() {
+        return isHelpEnabled_onBlankShowSet;
+    }
+
+    public boolean getMercyEnabled() {
+        return isMercyEnabled;
+    }
+
+    // TODO: Change return type to reflect how the game ended.
+    public void playRounds() throws EmptyException, IOException {
+        for (;;) {
+            printGameStats(numSetsFound, tableCards.size(), deck.size());
+            gui.consolePrint(tableCards.toString());
+
+            Optional<int[]> optUserResponse = queryUserSet(tableCards.size());
+            if (optUserResponse.isPresent()) {
+                // User claims to have found a set
+                int[] userSetIndxs = optUserResponse.get();
+                Card[] cards = { tableCards.getCard(userSetIndxs[0]),
+                                    tableCards.getCard(userSetIndxs[1]),
+                                    tableCards.getCard(userSetIndxs[2])
+                                    };
+                if (isSet(cards)) {
+                    // User found a set
+                    gui.consolePrintln("\n*** You found a set!");
+                    numSetsFound++;
+                    tableCards.removeThree(userSetIndxs);
+                    if (tableCards.isEmpty()) {
+                        gui.consolePrintln("\nYou cleared the board. Congratulations!!");
+                        break;  // Game over --- Board cleared
+                    }
+                    if (tableCards.size() < Deck.BASE_OUTLAY_COUNT) {
+                        if (!deck.isEmpty()) {
+                            deck.dealThreeIntoOther(tableCards);
+                        }
+                        continue;
+                    }
+                } else {
+                    gui.consolePrintln("\n*** No, that's not a set.");
+                    continue;
+                }
+            } else {
+                assert(optUserResponse.isEmpty());
+                if (isHelpEnabled_onBlankShowSet) {
+                    int[] setIndxs = new int[3];
+                    boolean isSetFound = findSet(tableCards, setIndxs);
+                    if (isSetFound) {
+                        showSet(tableCards, setIndxs);
+                        continue;
+                    }
+                }
+                if (deck.isEmpty()) {
+                    gui.consolePrintln("\nGame is over. Thanks for playing!");
+                    break;  // Game over. User could not find Set, and deck is empty
+                } else {
+                    // Lay down 3 more cards
+                    deck.dealThreeIntoOther(tableCards);
+                    continue;
+                }
+            }
+        }
+    }
+
     public void printGameStats(int numSetsFound, int tableCardCount, int deckCardCount) {
         String setCountStr = numSetsFound == 0 ? "No Sets"
                                  : ((numSetsFound == 1) ? "One Set"
@@ -162,11 +164,11 @@ class Game {
 
         String outStr = String.format("%s found. %s on the table. %s in the deck.",
                                           setCountStr, tableCountStr, deckCountStr);
-        this.gui.consolePrintln(outStr);
+        gui.consolePrintln(outStr);
     }
 
     public void printSet(CardCollection cards, int[] indxs) {
-        this.gui.consolePrintln(
+        gui.consolePrintln(
             "Cards #" + String.valueOf(indxs[0])
             +   ", #" + String.valueOf(indxs[1])
             +   ", #" + String.valueOf(indxs[2])
@@ -178,9 +180,9 @@ class Game {
         BufferedReader in;
 
         in = new BufferedReader(new InputStreamReader(System.in));
-        this.gui.consolePrint("\nPlay again (y/n)? ");
+        gui.consolePrint("\nPlay again (y/n)? ");
         reply = in.readLine();
-        this.gui.consolePrintln("");
+        gui.consolePrintln("");
         reply = reply.toLowerCase().trim();
         if (reply.startsWith("n") || reply.startsWith("q")) {
             return false;
@@ -194,14 +196,14 @@ class Game {
         Pattern regex = Pattern.compile("^\\s*\\d+\\s+\\d+\\s+\\d+\\s*$");
 
         for (;;) {
-            this.gui.consolePrint("\nEnter three card #numbers (or <RETURN> for no Set found): ");
+            gui.consolePrint("\nEnter three card #numbers (or <RETURN> for no Set found): ");
             String userInput = in.readLine().trim();
             if (userInput.isEmpty()) {
                 return Optional.empty();  // User did not find set
             }
             Matcher matcher = regex.matcher(userInput);
             if (!matcher.find()) {
-                this.gui.consolePrintln("Error: Did not recognize input format.");
+                gui.consolePrintln("Error: Did not recognize input format.");
                 continue;
             }
             int[] cardIndxs = Arrays.stream(userInput.split(" "))
@@ -211,7 +213,7 @@ class Game {
             boolean areIndxsValid = true;
             for (int cardIndx : cardIndxs) {
                 if (cardIndx < 0 || cardIndx >= tableCardCount) {
-                    this.gui.consolePrint(String.format("Error: Cards #%d is out of range (0 to %d)",
+                    gui.consolePrint(String.format("Error: Cards #%d is out of range (0 to %d)",
                         cardIndx, tableCardCount - 1));
                     areIndxsValid = false;
                 }
@@ -224,24 +226,40 @@ class Game {
         // NOT_REACHED
     }
 
-    public boolean getHelpEnabled_onBlankShowSet() {
-        return this.isHelpEnabled_onBlankShowSet;
-    }
-
-    public boolean getMercyEnabled() {
-        return this.isMercyEnabled;
-    }
-
     public void setHelpEnabled_onBlankShowSet(boolean isEnabled) {
-        this.isHelpEnabled_onBlankShowSet = isEnabled;
+        isHelpEnabled_onBlankShowSet = isEnabled;
     }
 
     public void setMercyEnabled(boolean isEnabled) {
-        this.isMercyEnabled = isEnabled;
+        isMercyEnabled = isEnabled;
     }
 
-    public void showSet(CardCollection tableCards, int[] indxs) {
-        this.gui.consolePrint("\nSet: ");
+    public void setup() throws EmptyException, IOException {
+        numSetsFound = 0;
+        // Refresh deck and table cards.
+        deck = new Deck();
+        tableCards = new Deck();
+
+        assert(deck.isEmpty());
+        deck.populateAndShuffle();
+        assert(deck.size() == Deck.CARD_COUNT);
+        assert(tableCards.isEmpty());
+
+        // Deal initial cards to the table
+        for (int k = 0; k < Deck.BASE_OUTLAY_COUNT; ++k) {
+            tableCards.add(deck.dealCard());
+        }
+        assert(deck.size() == Deck.CARD_COUNT - Deck.BASE_OUTLAY_COUNT);
+        assert(tableCards.size() == Deck.BASE_OUTLAY_COUNT);
+
+        for (;;) {  // User looks for sets
+            playRounds();
+        }  // Done with this deck
+    }
+
+    public void showSet(CardCollection tableCards, int[] indxs) throws EmptyException, IOException {
+        gui.consolePrint("\nSet: ");
+        // TODO:Next: Display card table: gui.updateCardTable(tableCards);
         printSet(tableCards, indxs);
     }
 }
